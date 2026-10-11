@@ -1,0 +1,7 @@
+run/
+*.json
+!vernap/checkbox_map.json
+*.zip
+*.pdf
+*.txt
+!requirements.txt
