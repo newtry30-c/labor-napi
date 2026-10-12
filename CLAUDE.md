@@ -31,3 +31,4 @@ A kulcs soha ne hagyja el Allen gépét: a script helyben olvassa be, és csak a
 
 ## Feladatok
 - `vernap/` — vérvételi nap előkészítése. Eligazítás: `vernap/forgatokonyv.md`; a napi indítás: `vernap/PROMPT_nap.md`.
+- `honlap_audit/` — honlap csomagleírások régi–új összevetése (gépi átírás hatása). Eligazítás: `honlap_audit/FELADAT.md`.

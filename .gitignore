@@ -5,3 +5,4 @@ run/
 *.pdf
 *.txt
 !requirements.txt
+honlap_audit/kimenet/
