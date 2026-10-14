@@ -184,13 +184,17 @@ foreach ($hetfo['paciensek'] as $p) {
         $a['allapot'] = isset($e['allapot']) ? $e['allapot'] : '';
         if (!empty($e['egy_sor'])) $a['egy_sor'] = $e['egy_sor'];
         // fizet / teendo / kerdes: az AI szabad szövegét NEM töltjük be (Allen, 10-11: nem kellenek a tudálékos AI-szövegek)
+        $megj = array();
         foreach ((array) (isset($e['vegso_keres']) ? $e['vegso_keres'] : array()) as $k) {
             // tipus (forgatókönyv, 10-11): csak a vizsgálat tétel; a csomagnév, díj és megjegyzés nem. Típus nélkül a régi viselkedés.
+            // megjegyzes (pl. a cset-szálban számolt ár): nem tétel, szövegként az adatlap_egyeb végére (10-14)
+            if (isset($k['tipus']) && $k['tipus'] === 'megjegyzes' && isset($k['tetel']) && trim($k['tetel']) !== '') $megj[] = 'Megjegyzés: ' . trim($k['tetel']);
             if (isset($k['tipus']) && $k['tipus'] !== '' && $k['tipus'] !== 'vizsgalat') continue;
             $f = nb_felirat(isset($k['tetel']) ? $k['tetel'] : '');
             if (isset($feliratok[$f]) && $feliratok[$f] !== false && isset($bent[$feliratok[$f]])) continue; // már bejelölt rács-cella, nem kell kétszer
             nb_kivul($a['tetelek'], isset($k['tetel']) ? $k['tetel'] : '', 'értékelés: ' . (isset($k['forras']) ? $k['forras'] : ''));
         }
+        if ($megj) $a['adatlap_egyeb'] = trim((isset($a['adatlap_egyeb']) ? $a['adatlap_egyeb'] : '') . "\n\n" . implode("\n", $megj));
     }
     $lv = isset($p['levelezes']) && is_array($p['levelezes']) ? $p['levelezes'] : null;
     if ($lv && isset($lv['arajanlat']['tetelek']) && is_array($lv['arajanlat']['tetelek'])) {

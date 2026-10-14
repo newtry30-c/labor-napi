@@ -88,7 +88,8 @@ nap_csomag_nevek.json, útmutató) — a vezénylő ezeket NE döntse el, tiszta
   kér, az tételenként kerüljön a `vegso_keres`-be is.
 - **Csomagnév nem tétel** (hétfőn 3 ilyen volt; az oldal olvasáskor kihagyja). A csomag a `foglalas`/`csomag` blokkban van.
 - Új mező tételenként: `tipus` = `vizsgalat` | `csomag` | `dij` | `megjegyzes`. A betöltő csak a `vizsgalat` típust (és a
-  típus nélkülit) veszi fel tételnek.
+  típus nélkülit) veszi fel tételnek. A `megjegyzes` típusú tétel (pl. a cset-szálban számolt ár, `tetel`-ben egy rövid
+  sorként) nem tétel lesz, hanem „Megjegyzés: …” sorként az `adatlap_egyeb` szöveg végére kerül (2026-10-14).
 
 ### Szövegek
 - `fizet`, `teendo`, `kerdes`: a betöltő nem viszi át (Allen: AI-szöveg nem kell a cetlire). Hétfőn kb. 3200 karakter
