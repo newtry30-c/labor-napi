@@ -11,7 +11,8 @@ eltérés esetén már eldöntve: csomagnál a honlap, tételnél az árlista):
      "fuggo": [{"nev": "Omega zsírsav profil", "ar": 18000, "feltetel": "csak ha megerősítik"}],
      "nyitott": ["C3 (?)", "Vitamin K ár egyeztetendő"],
      "ok": "a kért vizsgálatok nem ismertek, ár nem számolható"}
-Az adminisztrációs díjat a kód teszi hozzá (3 000 Ft, egyszer), ha van legalább egy számolható sor.
+Az adminisztrációs díjat a kód teszi hozzá (3 000 Ft, egyszer), ha van legalább egy számolható sor,
+kivéve "admin_nelkul": true esetén (HP-panel: 28 000 Ft, admin díj nélkül; ha a HP fizet, 0 Ft, sorok nélkül).
 A végösszeget a kód számolja.
 
 Önteszt: python3 -I vernap/elszamolas.py
@@ -21,7 +22,7 @@ import re
 ADMIN_NEV = "Adminisztrációs díj"
 ADMIN_AR = 3000
 TIPUSOK = ("csomag", "tetel", "admin", "kedvezmeny")
-FORRASOK = ("honlap", "árlista")
+FORRASOK = ("honlap", "árlista", "megadott")  # megadott: Allen adta meg (pl. HP-panel)
 TILTOTT = re.compile(r"csapi", re.I)
 
 
@@ -63,9 +64,9 @@ def elszamolas(bemenet, ar_ellenorizve):
         if t != "kedvezmeny":
             sor["forras"] = s["forras"]
         sorok.append(sor)
-    if any(s["tipus"] in ("csomag", "tetel") for s in sorok):
+    if any(s["tipus"] in ("csomag", "tetel") for s in sorok) and not b.get("admin_nelkul"):
         sorok.append({"nev": ADMIN_NEV, "ar": ADMIN_AR, "tipus": "admin"})
-    else:
+    elif not any(s["tipus"] in ("csomag", "tetel") for s in sorok):
         sorok = []  # kedvezmény önmagában nem számol
 
     fuggo = [{"nev": f["nev"], "ar": int(f["ar"])} for f in (b.get("fuggo") or [])]
@@ -108,4 +109,6 @@ if __name__ == "__main__":
     assert u["sorok"] == [] and u["vegosszeg"] == 0 and u["szoveg"] == "Elszámolás: ár nem számolható."
     n = elszamolas({"sorok": [{"nev": "TSH", "ar": 4200, "tipus": "tetel", "forras": "árlista"}], "nyitott": ["C3 (?)"]}, "2026-10-13")
     assert n["vegosszeg"] == 7200 and n["szoveg"].endswith(" C3 (?).")
+    h = elszamolas({"sorok": [{"nev": "HP-panel", "ar": 28000, "tipus": "csomag", "forras": "megadott"}], "admin_nelkul": True}, "2026-10-14")
+    assert h["vegosszeg"] == 28000 and h["szoveg"] == "Elszámolás: HP-panel 28 000 = 28 000 Ft."
     print("ok")
