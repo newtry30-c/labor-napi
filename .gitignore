@@ -6,3 +6,4 @@ run/
 *.txt
 !requirements.txt
 honlap_audit/kimenet/
+__pycache__/
