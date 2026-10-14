@@ -212,6 +212,8 @@ foreach ($hetfo['paciensek'] as $p) {
         if ($maradek !== '' && $maradek !== $cim) nb_kivul($a['tetelek'], $maradek, 'naptár megjegyzés');
         elseif ($maradek !== '' && $nev === '') nb_kivul($a['tetelek'], $maradek, 'naptár megjegyzés');
     }
+    // adatlap-megjegyzés (10-14): a számoló szál szó szerinti kiolvasása, ha a PDF-et itt nem dolgoztuk fel
+    if (!empty($p['adatlap_megjegyzes'])) $a['adatlap_egyeb'] = trim((isset($a['adatlap_egyeb']) ? $a['adatlap_egyeb'] : '') . "\n\n" . trim($p['adatlap_megjegyzes']));
     // elszámolás (10-14): a lapra nyomtatott szöveg betűre ugyanaz; ha a végösszeg nem egyezik a sorok összegével, eldobjuk
     $el = isset($p['elszamolas']) && is_array($p['elszamolas']) ? $p['elszamolas'] : null;
     $elMegj = '';

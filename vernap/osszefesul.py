@@ -547,6 +547,8 @@ def main():
             o["hp_level_tovabbi"] = hl_tobb
         o["ertekeles"] = copy.deepcopy(ert.get(str(vz["id"])))
         eb = elsz_pac.get(str(vz["id"]))
+        if eb and (eb.get("adatlap_megjegyzes") or "").strip():
+            o["adatlap_megjegyzes"] = eb["adatlap_megjegyzes"].strip()  # szó szerint az adatlapról (a számoló szál olvasta ki)
         o["elszamolas"] = elszamolas(eb if eb is not None else {"ok": "nincs elszámolási adat, ár nem számolható"}, elsz_nap)
         if p["vdata_egyeb"]:
             o["vdata_egyeb"] = p["vdata_egyeb"]
