@@ -10,7 +10,7 @@ nem egészít ki: amit egy forrás nem tartalmaz, az null.
 Futtatás:
     python3 -I vernap/osszefesul.py ÉÉÉÉ-HH-NN
 
-Bemenet (a repó run/ mappájában): adatlapok.json, levelezes_A/B/C.json, hp_naptar.json, ertekeles.json,
+Bemenet (a repó run/ mappájában): adatlapok.json, levelezes_A/B/C.json, hp_naptar.json, ertekeles.json, elszamolas.json (nem kötelező),
 plusz élő adatok KIZÁRÓLAG HTTP GET-tel (LIS REST API, CSAPI).
 Kimenet (ugyanott): hetfo.json, kesobb.json, nem_aktualis.json, ellenorzes.json
 """
@@ -26,6 +26,9 @@ import sys
 import time
 import unicodedata
 from collections import OrderedDict, defaultdict
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from elszamolas import elszamolas, ellenoriz  # noqa: E402  (a kérőlap ugyanezt a szöveget kapja)
 
 BASE = pathlib.Path(__file__).resolve().parent.parent / "run"  # bemenet és kimenet: a repó run/ mappája (gitignore)
 API = "https://a.gellertlabor.hu/api/api.php7/records/"
@@ -206,6 +209,9 @@ def main():
     lev_forrasok = {n: load("levelezes_%s.json" % n) for n in "ABCDEFGH" if (BASE / ("levelezes_%s.json" % n)).exists()}  # ami van
     hpn = load("hp_naptar.json")
     ertek = load("ertekeles.json")
+    elsz = load("elszamolas.json") if (BASE / "elszamolas.json").exists() else {}
+    elsz_pac = elsz.get("paciensek") or {}
+    elsz_nap = elsz.get("ar_ellenorizve") or datetime.date.today().isoformat()
 
     # ----------------------------------------------------------------------------------------------
     # LIS élő adatok (GET)
@@ -540,6 +546,8 @@ def main():
         if hl_tobb:
             o["hp_level_tovabbi"] = hl_tobb
         o["ertekeles"] = copy.deepcopy(ert.get(str(vz["id"])))
+        eb = elsz_pac.get(str(vz["id"]))
+        o["elszamolas"] = elszamolas(eb if eb is not None else {"ok": "nincs elszámolási adat, ár nem számolható"}, elsz_nap)
         if p["vdata_egyeb"]:
             o["vdata_egyeb"] = p["vdata_egyeb"]
         pac_ki.append(o)
@@ -559,6 +567,8 @@ def main():
         "ertekeles_megjegyzes": ertek.get("megjegyzes"),
     }
     hetfo["paciensek"] = pac_ki
+    for p_ in pac_ki:
+        ellenoriz(p_["elszamolas"])  # vegosszeg == a sorok összege, minden páciensnél
     hetfo["naptar_parositatlan"] = parositatlan_ki
 
     # ----------------------------------------------------------------------------------------------

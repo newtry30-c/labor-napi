@@ -15,6 +15,7 @@
  *   - az értékelés végső kérése (vegso_keres) „Egyéb vizsgálatként”, a forrásával,
  *   - a levélbeli ajánlat sorai és a naptár-cím megjegyzése „Egyéb vizsgálatként”,
  *   - az adatlap „Egyéb vizsgálat” szövege szó szerint (adatlap_egyeb),
+ *   - az elszamolas.szoveg az adatlap_egyeb végére (ha a vegosszeg egyezik a sorok összegével; különben eldobva),
  *   - állapot és egy mondat az értékelésből (a fizet/teendő/kérdés AI-szöveg nem kerül be). mod = "kezi", modellnév nincs.
  * Kérés-azonosító: hetfo.json paciensek[].vid = vizsgalats.id.
  *
@@ -211,10 +212,22 @@ foreach ($hetfo['paciensek'] as $p) {
         if ($maradek !== '' && $maradek !== $cim) nb_kivul($a['tetelek'], $maradek, 'naptár megjegyzés');
         elseif ($maradek !== '' && $nev === '') nb_kivul($a['tetelek'], $maradek, 'naptár megjegyzés');
     }
+    // elszámolás (10-14): a lapra nyomtatott szöveg betűre ugyanaz; ha a végösszeg nem egyezik a sorok összegével, eldobjuk
+    $el = isset($p['elszamolas']) && is_array($p['elszamolas']) ? $p['elszamolas'] : null;
+    $elMegj = '';
+    if ($el) {
+        $osszeg = 0;
+        foreach ((array) (isset($el['sorok']) ? $el['sorok'] : array()) as $s) $osszeg += intval(isset($s['ar']) ? $s['ar'] : 0);
+        if (!isset($el['vegosszeg']) || intval($el['vegosszeg']) !== $osszeg || !isset($el['szoveg']) || trim($el['szoveg']) === '') {
+            $elMegj = ' (elszámolás eldobva: a végösszeg nem egyezik)';
+        } else {
+            $a['adatlap_egyeb'] = trim((isset($a['adatlap_egyeb']) ? $a['adatlap_egyeb'] : '') . "\n\n" . trim($el['szoveg']));
+        }
+    }
     $uj = ne_tisztit($a);
     $racsDb = 0;
     foreach ($uj['tetelek'] as $t) if ($t['racs']) $racsDb++;
-    echo "$vid  " . ($van ? 'FELÜLÍR' : 'új') . "  rács: $racsDb, egyéb vizsgálat: " . (count($uj['tetelek']) - $racsDb) . ($nemRacs ? " (ebből adatlap-mező ismeretlen: $nemRacs)" : '') . ", állapot: " . ($uj['allapot'] === '' ? '-' : $uj['allapot']) . "\n";
+    echo "$vid  " . ($van ? 'FELÜLÍR' : 'új') . "  rács: $racsDb, egyéb vizsgálat: " . (count($uj['tetelek']) - $racsDb) . ($nemRacs ? " (ebből adatlap-mező ismeretlen: $nemRacs)" : '') . ", állapot: " . ($uj['allapot'] === '' ? '-' : $uj['allapot']) . $elMegj . "\n";
     if (!$go) continue;
     $ertek = ne_esc(ne_json($uj));
     $sor = db_query("SELECT id FROM vdata WHERE vizsgalat_id = " . $vid . " AND kulcs = 'elokeszites' ORDER BY id DESC LIMIT 1");

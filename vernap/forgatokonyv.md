@@ -121,3 +121,9 @@ nap_csomag_nevek.json, útmutató) — a vezénylő ezeket NE döntse el, tiszta
 - **Adatlap-kiolvasás:** pypdf-script, mezőértékek + nem-widget annotációk; a FreeText annotáció szövege a `/Contents`-ből olvasható, render nélkül.
 - **osszefesul.py:** a `levelezes_*.json` fájlok közül azt veszi, ami létezik (A–H); a `TOBBSZOROS_VID` üres. Az értékelés a `ertekeles.json` `paciensek` kulcsa alatt áll. A kimenetből az új kérések külön fájlba szűrhetők (`nap_{nap}_uj.json`).
 - **Tapasztalat:** a fájlnévben álló küldő neve nem mindig a páciensé (10-11: Kertész Antónia küldte Jánoczki Ádám Csaba adatlapját). A párosítás a lap eleje alapján megy.
+
+## Elszámolás (2026-10-14)
+- Bemenet: `run/elszamolas.json` — `{"ar_ellenorizve": "ÉÉÉÉ-HH-NN", "paciensek": {"<vid>": {"sorok": [...], "fuggo": [...], "nyitott": [...], "ok": "..."}}}`. Az árakat a számoló szál adja, eltérés esetén már eldöntve (csomag: honlap, tétel: ambuláns árlista); a másik ár és az eltérés nem kerül át.
+- `vernap/elszamolas.py` építi a blokkot: az admin díjat (3 000 Ft, egyszer) és a végösszeget kóddal teszi hozzá, a `szoveg` ugyanebből a függvényből jön a lapra és a JSON-ba. Ami nem számolható, csak a szövegben áll (`nyitott`, `ok`).
+- `osszefesul.py` minden páciensnél kitölti (adat nélkül: `sorok: []`, `vegosszeg: 0`, a szöveg megmondja, miért), és assert ellenőrzi a végösszeget.
+- A betöltő eldobja, ha a végösszeg nem egyezik; különben a szöveget az `adatlap_egyeb` végére írja.
