@@ -120,3 +120,11 @@ nap_csomag_nevek.json, útmutató) — a vezénylő ezeket NE döntse el, tiszta
 - **Adatlap-kiolvasás:** pypdf-script, mezőértékek + nem-widget annotációk; a FreeText annotáció szövege a `/Contents`-ből olvasható, render nélkül.
 - **osszefesul.py:** a `levelezes_*.json` fájlok közül azt veszi, ami létezik (A–H); a `TOBBSZOROS_VID` üres. Az értékelés a `ertekeles.json` `paciensek` kulcsa alatt áll. A kimenetből az új kérések külön fájlba szűrhetők (`nap_{nap}_uj.json`).
 - **Tapasztalat:** a fájlnévben álló küldő neve nem mindig a páciensé (10-11: Kertész Antónia küldte Jánoczki Ádám Csaba adatlapját). A párosítás a lap eleje alapján megy.
+
+## Átadóból induló előkészítés (2026-10-13, a szerdai napra)
+
+- **Menet:** Allen kézzel megírt átadója (páciensenként: mi van fent, teendő, tudnivaló, nyitott döntés) → `osszefesul.py {nap}` a LIS-kötéshez → `ertekeles.json` közvetlenül az átadóból → újra `osszefesul.py` → `nap_{nap}.json`. Adatlap, levelezés, naptár nem kell hozzá; a hiányzó bemenetekhez üres váz elég (`adatlapok.json`: `{"rekordok":[]}`, `hp_naptar.json`: `{"naptar_hetfo":[]}`).
+- **Ami benne van az átadóban, az kész:** nem kell újra kiolvasni, keresni, pontosítást kérni. A vezénylő nem kér újabb bemenetet (lemondás-kimenet, zip), ha az átadó megvan.
+- **A gép dolga az eltérés:** a LIS napi listáján olyan kérés is lehet, ami az átadóban nincs (10-14: két foglalás nélküli, 27 tesztes kérés). Ezek értékelés nélkül mennek a fájlba, és a jelentés első sorában állnak.
+- **Átadóbeli teendő az `egy_sor`-ba**, a nyitott döntés `kerdes` állapotba; a `vegso_keres`-be csak a még fel nem vett, megnevezett tétel kerül.
+- **Betöltés Allen Macén:** a betöltő a listools `_snapshots/napelokeszito-20261011/` mappájában van; útvonal nélkül így indul: `$(mdfind -name betoltes.sh | grep napelokeszito-20261011 | head -1) ~/Downloads/nap_{nap}.json`.
