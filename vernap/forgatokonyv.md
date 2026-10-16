@@ -140,6 +140,14 @@ nap_csomag_nevek.json, útmutató) — a vezénylő ezeket NE döntse el, tiszta
 - A lemondott foglalás törlődik, sorszámot nem kap.
 - A sorszámot Allen kézzel adja; a vezénylő legfeljebb javasolt listát ad, a LIS-be nem ír.
 
+## Átadóból induló előkészítés (2026-10-13, a szerdai napra)
+
+- **Menet:** Allen kézzel megírt átadója (páciensenként: mi van fent, teendő, tudnivaló, nyitott döntés) → `osszefesul.py {nap}` a LIS-kötéshez → `ertekeles.json` közvetlenül az átadóból → újra `osszefesul.py` → `nap_{nap}.json`. Adatlap, levelezés, naptár nem kell hozzá; a hiányzó bemenetekhez üres váz elég (`adatlapok.json`: `{"rekordok":[]}`, `hp_naptar.json`: `{"naptar_hetfo":[]}`).
+- **Ami benne van az átadóban, az kész:** nem kell újra kiolvasni, keresni, pontosítást kérni. A vezénylő nem kér újabb bemenetet (lemondás-kimenet, zip), ha az átadó megvan.
+- **A gép dolga az eltérés:** a LIS napi listáján olyan kérés is lehet, ami az átadóban nincs (10-14: két foglalás nélküli, 27 tesztes kérés). Ezek értékelés nélkül mennek a fájlba, és a jelentés első sorában állnak.
+- **Átadóbeli teendő az `egy_sor`-ba**, a nyitott döntés `kerdes` állapotba; a `vegso_keres`-be csak a még fel nem vett, megnevezett tétel kerül.
+- **Betöltés Allen Macén:** a betöltő a listools `_snapshots/napelokeszito-20261011/` mappájában van; útvonal nélkül így indul: `$(mdfind -name betoltes.sh | grep napelokeszito-20261011 | head -1) ~/Downloads/nap_{nap}.json`.
+
 ## Elszámolás (2026-10-14)
 - Bemenet: `run/elszamolas.json` — `{"ar_ellenorizve": "ÉÉÉÉ-HH-NN", "paciensek": {"<vid>": {"sorok": [...], "fuggo": [...], "nyitott": [...], "ok": "..."}}}`. Az árakat a számoló szál adja, eltérés esetén már eldöntve (csomag: honlap, tétel: ambuláns árlista); a másik ár és az eltérés nem kerül át.
 - `vernap/elszamolas.py` építi a blokkot: az admin díjat (3 000 Ft, egyszer) és a végösszeget kóddal teszi hozzá, a `szoveg` ugyanebből a függvényből jön a lapra és a JSON-ba. Ami nem számolható, csak a szövegben áll (`nyitott`, `ok`).
