@@ -121,6 +121,24 @@ nap_csomag_nevek.json, útmutató) — a vezénylő ezeket NE döntse el, tiszta
 - **osszefesul.py:** a `levelezes_*.json` fájlok közül azt veszi, ami létezik (A–H); a `TOBBSZOROS_VID` üres. Az értékelés a `ertekeles.json` `paciensek` kulcsa alatt áll. A kimenetből az új kérések külön fájlba szűrhetők (`nap_{nap}_uj.json`).
 - **Tapasztalat:** a fájlnévben álló küldő neve nem mindig a páciensé (10-11: Kertész Antónia küldte Jánoczki Ádám Csaba adatlapját). A párosítás a lap eleje alapján megy.
 
+## A kedd előkészítése (2026-10-12) — tanulságok
+
+- **A LIS-felvétel előfeltétel.** A folyamat a LIS napi listájából indul; ha a célnapra 0 kérés van, előbb Allen behívja a foglalásokat a LIS-be (az időpontfoglalóból), csak utána fut a többi szál. A levélben vagy kézzel egyeztetett páciensek a naptárban vannak, ezért a naptárral mindig össze kell nézni.
+- **Első `osszefesul.py` futás:** kell egy üres `run/ertekeles.json` (`{"paciensek":{}}`), különben a script elhasal. A futás 2–5 perc (LIS-hívások); háttérfeladatként kell indítani, nem `nohup &`-pal.
+- **A `vegso_keres` és a rács:** a betöltő a `vegso_keres` tételét csak pontos rács-feliratra párosítja, a `checkbox_map.json` `teszt_nev`-je ennek nem mindig felel meg. Az adatlapon ikszelt tételt ezért NEM kell a `vegso_keres`-be ismételni (az adatlap-blokk a mezőnévvel a rácsra viszi); ismételve „egyéb vizsgálat” másodpéldány lesz.
+- **Párosítatlan adatlap** (pl. a név a születési dátum mezőbe került): az adatlap-blokkot kézzel kell a páciens rekordjába tenni (`parositas: "kezi"`), különben az ikszelt tételek nem kerülnek a rácsra.
+- **Naptár-cím mint tétel:** ha a vezénylő a címből külön tételeket ír a `vegso_keres`-be, az eseményt `megjegyzes`-re kell állítani, különben a cím összefűzött maradéka még egy tételként bejön. A címben álló csomagnév mindig `megjegyzes`.
+- **Ajánlat-sorok:** a betöltő a `levelezes.arajanlat.tetelek` minden sorát „egyéb vizsgálatként” felveszi; összetett sort (pl. „small routine panel (CBC, CRP…)”) ki kell venni, a ténylegesen kért tétel a `vegso_keres`-be megy.
+- **Mindig száraz futás előbb**, és a számokat (rács / egyéb) össze kell vetni a várttal. A letöltött zip neve ütközhet (`… (1).zip`): a legfrissebbet kell kicsomagolni.
+
+## Sorszám (Allen, 2026-10-12)
+
+- A Gellért Medical saját kérései 20201-től, a partnerek kérései 20221-től kapnak sorszámot; naponta újraindul.
+- A sorszám azt jelzi a kollégáknak, hogy a nap feldolgozása elindult (nem az érkezés sorrendje).
+- Sorrend: időpont szerint; az együtt érkező párok/családtagok egymás után.
+- A lemondott foglalás törlődik, sorszámot nem kap.
+- A sorszámot Allen kézzel adja; a vezénylő legfeljebb javasolt listát ad, a LIS-be nem ír.
+
 ## Átadóból induló előkészítés (2026-10-13, a szerdai napra)
 
 - **Menet:** Allen kézzel megírt átadója (páciensenként: mi van fent, teendő, tudnivaló, nyitott döntés) → `osszefesul.py {nap}` a LIS-kötéshez → `ertekeles.json` közvetlenül az átadóból → újra `osszefesul.py` → `nap_{nap}.json`. Adatlap, levelezés, naptár nem kell hozzá; a hiányzó bemenetekhez üres váz elég (`adatlapok.json`: `{"rekordok":[]}`, `hp_naptar.json`: `{"naptar_hetfo":[]}`).
