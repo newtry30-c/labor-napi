@@ -22,6 +22,9 @@ Ezt a fájlt minden munkamenet elején olvasd el: a többi munkamenet a beszélg
 
 ## Nyitott
 
+- **Az adatlapok forrása.** Hogy egy páciensnek van-e beküldött adatlapja, és melyik az, ma kézzel, időablakkal derül ki (mettől szedje ki Allen a mappából). Terv: időablak helyett egy Allen gépén futó script, amely a LIS-ből veszi a következő napok pácienseit, a teljes adatlap-mappát nézi, és a lap elején álló név + születési dátum szerint párosít. Előfeltétel Allen válasza: hol vannak fizikailag az adatlapok (Mac-mappa, Drive, szerver, csak Gmail-csatolmány). Döntési lap: https://claude.ai/artifact/CvLzhF4KHRwreuPD6oCPdg. A 10-14-i menet óta a PDF csak az előlaphoz és a tervezőbe viendő pipákhoz kell; a „hány napra előre” és „mi maradjon meg” kérdést ehhez kell igazítani.
+- **Egy ág.** Minden munkamenet a mainből indul: a munkamenet végén az eredmény a mainbe kerül, különben a következő munkamenet nem látja (10-16-ig négy külön ágon állt a munka).
+
 - A generáló szkript még csak a munkamenet `run/` mappájában van (páciensadattal); újrahasználható, adat nélküli formában be kell tenni a `vernap/` alá.
 - A sablon (`gl_adatlap_jav.pdf`) nincs a repóban; a commitot a jogosultság-ellenőrzés megfogta. Allen jóváhagyásával `vernap/sablon/` alá kerül.
 - Az ambuláns árlista nem érhető el innen: tételár csak a számoló szálból jön.
